@@ -1,0 +1,1122 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>技能儀表板</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23F05133%22%2F%3E%20%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%226%22%2F%3E%20%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%224.5%22%20fill%3D%22%23FFFFFF%22%2F%3E%20%3C%2Fsvg%3E"
+      type="image/svg+xml"
+    />
+    <script>
+      try {
+        var t = localStorage.getItem("skill-dashboard-theme");
+        if (t === "dark" || t === "light")
+          document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Noto+Sans+TC:wght@400;500;700;900&amp;family=Space+Grotesk:wght@500;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --accent: #f05133;
+        --accent-deep: #c93a20;
+        --accent-soft: #ffd9cf;
+        --bg: #fbfaf8;
+        --card: #ffffff;
+        --panel: #f5f1ed;
+        --panel-soft: #f6f5f3;
+        --ink: #37352f;
+        --ink-2: #55504b;
+        --ink-3: #6b645e;
+        --hint: #9a938b;
+        --line: #cfc6be;
+        --line-2: #bfb6ad;
+        --tint: #fdefea;
+        --tint-border: #f5b5a3;
+        --on-tint: #c93a20;
+        --shadow:
+          0 1px 4px rgba(12, 12, 13, 0.05), 0 1px 4px rgba(12, 12, 13, 0.1);
+        --font-mono: "IBM Plex Mono", monospace;
+        --font-display: "Space Grotesk", sans-serif;
+      }
+      html[data-theme="dark"] {
+        --bg: #1f1f1f;
+        --card: #1f1f1f;
+        --panel: #2a2a2a;
+        --panel-soft: #242424;
+        --ink: #e6e6e6;
+        --ink-2: #cdcdcd;
+        --ink-3: #ababab;
+        --hint: #6e6e6e;
+        --line: #383838;
+        --line-2: #454545;
+        --tint: rgba(240, 81, 51, 0.45);
+        --tint-border: rgba(240, 81, 51, 0.55);
+        --on-tint: #ffd9cf;
+        --shadow: none;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Noto Sans TC", sans-serif;
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+      }
+      a {
+        color: var(--accent-deep);
+        text-decoration: none;
+      }
+      a:hover {
+        color: var(--accent);
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .page {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 48px 48px 80px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px 24px;
+        flex-wrap: wrap;
+      }
+      .brand {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        letter-spacing: 0.22em;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .today {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        color: var(--ink-3);
+      }
+      .theme-toggle {
+        display: flex;
+        border: 1px solid var(--line-2);
+        border-radius: 999px;
+        padding: 3px 3px 3.5px;
+        gap: 2px;
+      }
+      .theme-opt {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        padding: 5px 14px;
+        border-radius: 999px;
+        color: var(--ink-3);
+        font-weight: 500;
+        user-select: none;
+      }
+      .theme-opt.is-on {
+        background: var(--accent);
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-top: 36px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 9px 20px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        color: var(--ink-3);
+        white-space: nowrap;
+        user-select: none;
+      }
+      .tab-tag {
+        font-family: var(--font-mono);
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .tab-sub {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        opacity: 0.75;
+      }
+      .tab.is-active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #ffffff;
+      }
+      .tab.is-locked {
+        border: 1px dashed var(--line-2);
+        color: var(--hint);
+        cursor: not-allowed;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+        grid-auto-rows: 176px;
+        grid-auto-flow: dense;
+        justify-content: start;
+        gap: 16px;
+        margin-top: 28px;
+      }
+
+      .tile {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+        background: var(--card);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transform-origin: top left;
+      }
+      .tile--profile {
+        grid-column: span 2;
+        background: var(--panel-soft);
+      }
+      .tile--group {
+        cursor: pointer;
+      }
+      .tile--expanded {
+        grid-column: span 2;
+        grid-row: span 2;
+      }
+      .tile--ms {
+        grid-column: span 2;
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #ffffff;
+        flex-direction: row;
+        gap: 22px;
+      }
+
+      .tile-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+      }
+      .tile-no {
+        font-weight: 600;
+        color: var(--hint);
+      }
+      .tile-no.is-lit {
+        color: var(--accent);
+      }
+      .tile-title {
+        font-size: 17.5px;
+        font-weight: 900;
+        line-height: 1.3;
+        margin-top: 12px;
+      }
+      .tile-note {
+        font-size: 13px;
+        color: var(--ink-3);
+        line-height: 1.6;
+        margin-top: 14px;
+      }
+
+      .profile-name {
+        font-size: 26px;
+        font-weight: 900;
+        line-height: 1.25;
+      }
+      .profile-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .profile-coord {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-shrink: 0;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: var(--ink);
+      }
+      .lang-label {
+        font-size: 14px;
+        color: var(--ink-3);
+        margin: auto 0 8px;
+      }
+      .lang-box {
+        position: relative;
+      }
+      .lang-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--line-2);
+        border-radius: 8px;
+        background: var(--card);
+        user-select: none;
+        text-align: left;
+      }
+      .lang-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent);
+        flex-shrink: 0;
+      }
+      .lang-value {
+        flex: 1;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--ink);
+      }
+      .lang-value.is-empty {
+        color: var(--hint);
+      }
+
+      .stat-label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        color: var(--ink-3);
+      }
+      .stat-num {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 40px;
+        line-height: 1;
+        margin-top: 14px;
+      }
+      .stat-num .is-lit {
+        color: var(--accent);
+      }
+      .stat-den {
+        color: var(--hint);
+      }
+      .stat-pct {
+        color: var(--ink-2);
+      }
+      .stat-sub {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--hint);
+        margin-top: 16px;
+      }
+
+      .tile-collapsed {
+        margin-top: auto;
+      }
+      .tile-bar {
+        margin-top: 14px;
+      }
+      .bar-row {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .bar {
+        height: 5px;
+        border-radius: 999px;
+        background: var(--panel);
+        overflow: hidden;
+      }
+      .bar--main {
+        flex: 4;
+      }
+      .bar--bonus {
+        flex: 1;
+      }
+      .bar-fill {
+        height: 100%;
+        background: var(--accent);
+      }
+      .count-hint {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--hint);
+        margin-top: 12px;
+      }
+      .tile-foot {
+        margin: 14px -24px -24px;
+        padding: 11px 24px;
+        border-top: 1px solid var(--line);
+        background: var(--panel-soft);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--ink-2);
+      }
+      .tile-foot--collapse {
+        margin-top: auto;
+      }
+
+      .ms-rail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+        border-right: 1px solid rgba(255, 255, 255, 0.28);
+        padding-right: 22px;
+      }
+      .ms-rail-t {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      .ms-rail-no {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 44px;
+        line-height: 1;
+        color: #ffffff;
+      }
+      .ms-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .ms-eyebrow {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.3em;
+        color: #ffffff;
+      }
+      .ms-note {
+        font-size: 12.5px;
+        color: rgba(255, 255, 255, 0.94);
+        line-height: 1.5;
+        margin-top: auto;
+      }
+
+      .list {
+        display: flex;
+        flex-direction: column;
+        margin-top: 16px;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        border-top: 1px solid var(--line);
+      }
+      .list-item {
+        display: flex;
+        gap: 12px;
+        padding: 12px 0;
+      }
+      .list-item + .list-item {
+        border-top: 1px solid var(--line);
+      }
+      .list-dot {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        border-radius: 999px;
+        border: 2px solid var(--line-2);
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 4px;
+      }
+      .list-dot svg {
+        display: none;
+      }
+      .list-item.is-done .list-dot {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .list-item.is-done .list-dot svg {
+        display: block;
+      }
+      .list-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .list-titles {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .list-title {
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--ink-3);
+      }
+      .list-item.is-done .list-title {
+        color: var(--ink);
+      }
+      .list-badge {
+        font-size: 9px;
+        line-height: 1;
+        letter-spacing: 0.06em;
+        color: var(--on-tint);
+        background: var(--tint);
+        border-radius: 4px;
+        margin-top: 2px;
+        padding: 2px 6px 4px;
+        flex-shrink: 0;
+      }
+      .list-desc {
+        font-size: 12.5px;
+        color: var(--ink-3);
+        line-height: 1.55;
+        margin-top: 3px;
+      }
+
+      .footer-note {
+        margin: 64px 0 0;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        color: var(--hint);
+        text-align: center;
+      }
+      .load-error {
+        font-size: 14px;
+        color: var(--ink-3);
+      }
+
+      @media (max-width: 640px) {
+        .today {
+          display: none;
+        }
+        .tabs {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar {
+          display: none;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .tile--profile,
+        .tile--expanded,
+        .tile--ms {
+          grid-column: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <div class="brand">SKILL DASHBOARD</div>
+        <div class="header-right">
+          <span class="today" id="today"></span>
+          <div class="theme-toggle">
+            <button
+              type="button"
+              class="theme-opt"
+              data-action="theme"
+              data-value="light"
+            >
+              LIGHT
+            </button>
+            <button
+              type="button"
+              class="theme-opt"
+              data-action="theme"
+              data-value="dark"
+            >
+              DARK
+            </button>
+          </div>
+        </div>
+      </header>
+      <nav class="tabs" id="tabs"></nav>
+      <main class="grid" id="grid"></main>
+      <p class="footer-note">
+        GitHub Actions CI/CD 自動化與 AI 協作實務班 · © 2026
+      </p>
+    </div>
+    <script src="./data.js"></script>
+    <script>
+      (function () {
+        "use strict";
+
+        var THEME_KEY = "skill-dashboard-theme";
+
+        var SCHEDULE = {
+          onboarding: {
+            date: "2026.07.18",
+            releaseAt: null,
+          },
+          "week-1": {
+            date: "2026.07.18",
+            releaseAt: null,
+          },
+          "week-2": {
+            date: "2026.07.25",
+            releaseAt: "2026-07-25T08:00:00+08:00",
+          },
+          "week-3": {
+            date: "2026.08.01",
+            releaseAt: "2026-08-01T08:00:00+08:00",
+          },
+          "week-4": {
+            date: "2026.08.15",
+            releaseAt: "2026-08-15T08:00:00+08:00",
+          },
+          "week-5": {
+            date: "2026.08.22",
+            releaseAt: "2026-08-22T08:00:00+08:00",
+          },
+          "week-6": {
+            date: "2026.08.29",
+            releaseAt: "2026-08-29T08:00:00+08:00",
+          },
+        };
+
+        var ICON_MAX =
+          '<svg width="15" height="15" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M20 2v2h6.586L18 12.582L19.414 14L28 5.414V12h2V2zm-6 17.416L12.592 18L4 26.586V20H2v10h10v-2H5.414z"></path></svg>';
+        var ICON_MIN =
+          '<svg width="15" height="15" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M4 18v2h6.586L2 28.582L3.414 30L12 21.414V28h2V18zM30 3.416L28.592 2L20 10.586V4h-2v10h10v-2h-6.586z"></path></svg>';
+
+        var COHORT_NO = "01";
+
+        var state = {
+          data: null,
+          theme: "light",
+          tab: null,
+          expanded: null,
+        };
+
+        function esc(s) {
+          return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return {
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[c];
+          });
+        }
+
+        function readTheme() {
+          try {
+            var v = localStorage.getItem(THEME_KEY);
+            return v === "dark" || v === "light" ? v : null;
+          } catch (err) {
+            return null;
+          }
+        }
+
+        function writeTheme(v) {
+          try {
+            localStorage.setItem(THEME_KEY, v);
+          } catch (err) {}
+        }
+
+        function isUnlocked(sec) {
+          var sch = SCHEDULE[sec.id] || {};
+          var released =
+            !sch.releaseAt || Date.now() >= Date.parse(sch.releaseAt);
+          var hasData = !!(sec.groups && sec.groups.length);
+          return released && hasData;
+        }
+
+        function compute() {
+          var secs = (state.data && state.data.sections) || [];
+          var unlocked = secs.filter(isUnlocked);
+          var currentId = unlocked.length
+            ? unlocked[unlocked.length - 1].id
+            : null;
+          var overall = {
+            done: 0,
+            total: 0,
+            bd: 0,
+            bt: 0,
+          };
+
+          var computed = secs.map(function (sec) {
+            var locked = !isUnlocked(sec);
+            var sD = 0,
+              sT = 0,
+              sBD = 0,
+              sBT = 0;
+            var groups = (sec.groups || []).map(function (g) {
+              var pts = g.points || [];
+              var core = pts.filter(function (p) {
+                return !p.bonus;
+              });
+              var bonus = pts.filter(function (p) {
+                return p.bonus;
+              });
+              var cd = core.filter(function (p) {
+                return p.done;
+              }).length;
+              var bd = bonus.filter(function (p) {
+                return p.done;
+              }).length;
+              sD += cd;
+              sT += core.length;
+              sBD += bd;
+              sBT += bonus.length;
+              var allDone = pts.filter(function (p) {
+                return p.done;
+              }).length;
+              var itemLabel = sec.kind === "intro" ? "認知" : "技能";
+              return {
+                gkey: sec.id + "/" + (g.no || g.title),
+                no: g.no || "",
+                title: g.title || "",
+                milestone: !!g.milestone,
+                note: g.note || "",
+                desc: g.desc || "",
+                points: pts,
+                week: sec.kind === "week" ? "W" + sec.week : "序章",
+                allDone: allDone,
+                allTotal: pts.length,
+                corePct: core.length ? Math.round((cd / core.length) * 100) : 0,
+                bonusPct: bonus.length
+                  ? Math.round((bd / bonus.length) * 100)
+                  : 0,
+                hasBonus: bonus.length > 0,
+                hint: bonus.length
+                  ? pts.length +
+                    " 項" +
+                    itemLabel +
+                    "，含 " +
+                    bonus.length +
+                    " 項加分"
+                  : pts.length + " 項" + itemLabel,
+              };
+            });
+            overall.done += sD;
+            overall.total += sT;
+            overall.bd += sBD;
+            overall.bt += sBT;
+            var tag = sec.kind === "intro" ? "序章" : "W" + sec.week;
+            return {
+              id: sec.id,
+              tag: tag,
+              locked: locked,
+              done: sD,
+              total: sT,
+              bDone: sBD,
+              bTotal: sBT,
+              groups: groups,
+            };
+          });
+
+          var activeId =
+            state.tab &&
+            computed.some(function (s) {
+              return s.id === state.tab && !s.locked;
+            })
+              ? state.tab
+              : currentId || (computed[0] && computed[0].id);
+          return {
+            computed: computed,
+            activeId: activeId,
+            overall: overall,
+            currentId: currentId,
+          };
+        }
+
+        function renderHeader(view) {
+          var sch = SCHEDULE[view.activeId] || {};
+          document.getElementById("today").textContent = sch.date || "";
+          document.querySelectorAll(".theme-opt").forEach(function (b) {
+            b.classList.toggle("is-on", b.dataset.value === state.theme);
+          });
+        }
+
+        function renderTabs(view) {
+          document.getElementById("tabs").innerHTML = view.computed
+            .map(function (s) {
+              var cls =
+                "tab" +
+                (s.id === view.activeId ? " is-active" : "") +
+                (s.locked ? " is-locked" : "");
+              var sub = s.locked ? "尚未開放" : s.done + "/" + s.total;
+              return (
+                '<button type="button" class="' +
+                cls +
+                '" data-action="tab" data-id="' +
+                esc(s.id) +
+                '"' +
+                (s.locked ? " disabled" : "") +
+                ">" +
+                '<span class="tab-tag">' +
+                esc(s.tag) +
+                '</span><span class="tab-sub">' +
+                sub +
+                "</span></button>"
+              );
+            })
+            .join("");
+        }
+
+        function listItemHtml(p) {
+          var cls = "list-item" + (p.done ? " is-done" : "");
+          var badge = p.bonus ? '<span class="list-badge">加分</span>' : "";
+          var check =
+            '<svg width="11" height="11" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-6.5" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+          var desc = p.desc
+            ? '<div class="list-desc">' + esc(p.desc) + "</div>"
+            : "";
+          return (
+            '<div class="' +
+            cls +
+            '"><span class="list-dot">' +
+            check +
+            "</span>" +
+            '<div class="list-body"><div class="list-titles"><span class="list-title">' +
+            esc(p.text) +
+            "</span>" +
+            badge +
+            "</div>" +
+            desc +
+            "</div></div>"
+          );
+        }
+
+        function groupTileHtml(g) {
+          if (g.milestone) {
+            return (
+              '<div class="tile tile--ms" data-gkey="' +
+              esc(g.gkey) +
+              '">' +
+              '<div class="ms-rail"><span class="ms-rail-t">M</span><span class="ms-rail-no">' +
+              esc(g.no) +
+              '</span><span class="ms-rail-t">' +
+              esc(g.week) +
+              "</span></div>" +
+              '<div class="ms-main"><div class="ms-eyebrow">本週目標</div>' +
+              '<div class="tile-title">' +
+              esc(g.title) +
+              "</div>" +
+              '<div class="ms-note">' +
+              esc(g.desc) +
+              "</div></div></div>"
+            );
+          }
+          var head =
+            '<div class="tile-head"><span class="tile-no' +
+            (g.allDone > 0 ? " is-lit" : "") +
+            '">' +
+            esc(g.no) +
+            "</span></div>";
+          var title = '<div class="tile-title">' + esc(g.title) + "</div>";
+          if (g.note) {
+            return (
+              '<div class="tile" data-gkey="' +
+              esc(g.gkey) +
+              '">' +
+              head +
+              title +
+              '<div class="tile-note">' +
+              esc(g.note) +
+              "</div></div>"
+            );
+          }
+          var expanded = state.expanded === g.gkey;
+          var bonusBar = g.hasBonus
+            ? '<div class="bar bar--bonus"><div class="bar-fill" style="width:' +
+              g.bonusPct +
+              '%"></div></div>'
+            : "";
+          var barRow =
+            '<div class="bar-row"><div class="bar bar--main"><div class="bar-fill" style="width:' +
+            g.corePct +
+            '%"></div></div>' +
+            bonusBar +
+            "</div>" +
+            '<div class="count-hint">' +
+            esc(g.hint) +
+            "</div>";
+          if (expanded) {
+            return (
+              '<div class="tile tile--group tile--expanded" data-gkey="' +
+              esc(g.gkey) +
+              '" data-action="toggle-group">' +
+              head +
+              title +
+              '<div class="tile-bar">' +
+              barRow +
+              "</div>" +
+              '<div class="list">' +
+              g.points.map(listItemHtml).join("") +
+              "</div>" +
+              '<div class="tile-foot tile-foot--collapse">收合技能清單' +
+              ICON_MIN +
+              "</div></div>"
+            );
+          }
+          return (
+            '<div class="tile tile--group" data-gkey="' +
+            esc(g.gkey) +
+            '" data-action="toggle-group">' +
+            head +
+            title +
+            '<div class="tile-collapsed">' +
+            barRow +
+            '<div class="tile-foot">展開技能清單' +
+            ICON_MAX +
+            "</div>" +
+            "</div></div>"
+          );
+        }
+
+        function renderGrid(view) {
+          view = view || compute();
+          var active = view.computed.find(function (s) {
+            return s.id === view.activeId;
+          });
+          if (!active) return;
+          var p = (state.data && state.data.profile) || {};
+          var lang = p.lang || "";
+          var full = active.total > 0 && active.done === active.total;
+
+          var profile =
+            '<div class="tile tile--profile">' +
+            '<div class="profile-top"><div class="profile-name">' +
+            esc(p.name || "你的姓名") +
+            "</div>" +
+            '<div class="profile-coord">COHORT ' +
+            esc(COHORT_NO) +
+            "</div></div>" +
+            '<div class="lang-label">主力語言</div>' +
+            '<div class="lang-box">' +
+            '<div class="lang-control">' +
+            (lang ? '<span class="lang-dot"></span>' : "") +
+            '<span class="lang-value' +
+            (lang ? "" : " is-empty") +
+            '">' +
+            esc(lang || "到 data.js 設定主力語言") +
+            "</span></div>" +
+            "</div></div>";
+
+          var stat =
+            '<div class="tile"><div class="stat-label">' +
+            esc(active.tag) +
+            " 已點亮</div>" +
+            '<div class="stat-num"><span class="is-lit">' +
+            active.done +
+            '</span><span class="' +
+            (full ? "is-lit" : "stat-den") +
+            '"> / ' +
+            active.total +
+            "</span></div>" +
+            '<div class="stat-sub">加分另計 +' +
+            active.bDone +
+            "/" +
+            active.bTotal +
+            "</div></div>";
+
+          var pct = view.overall.total
+            ? Math.round((view.overall.done / view.overall.total) * 100)
+            : 0;
+          var overall =
+            '<div class="tile"><div class="stat-label">全課程進度</div>' +
+            '<div class="stat-num stat-pct">' +
+            pct +
+            "%</div>" +
+            '<div class="stat-sub">主線 ' +
+            view.overall.done +
+            "/" +
+            view.overall.total +
+            " · 加分 +" +
+            view.overall.bd +
+            "/" +
+            view.overall.bt +
+            "</div></div>";
+
+          document.getElementById("grid").innerHTML =
+            profile +
+            stat +
+            overall +
+            active.groups.map(groupTileHtml).join("");
+        }
+
+        function renderAll() {
+          var view = compute();
+          renderHeader(view);
+          renderTabs(view);
+          renderGrid(view);
+        }
+
+        function captureRects() {
+          var m = {};
+          document.querySelectorAll("[data-gkey]").forEach(function (el) {
+            m[el.dataset.gkey] = el.getBoundingClientRect();
+          });
+          return m;
+        }
+
+        function flip(prev, clicked) {
+          var tiles = Array.prototype.slice.call(
+            document.querySelectorAll("[data-gkey]"),
+          );
+          var order = {};
+          tiles.forEach(function (el, i) {
+            order[el.dataset.gkey] = i;
+          });
+          var ci = clicked in order ? order[clicked] : 0;
+          tiles.forEach(function (el) {
+            var k = el.dataset.gkey;
+            var p = prev[k];
+            if (!p || !el.animate) return;
+            var n = el.getBoundingClientRect();
+            var dx = p.left - n.left,
+              dy = p.top - n.top;
+            var sx = n.width ? p.width / n.width : 1;
+            var sy = n.height ? p.height / n.height : 1;
+            if (
+              Math.abs(dx) < 0.5 &&
+              Math.abs(dy) < 0.5 &&
+              Math.abs(sx - 1) < 0.004 &&
+              Math.abs(sy - 1) < 0.004
+            )
+              return;
+            var isClicked = k === clicked;
+            var dist = Math.min(Math.abs((k in order ? order[k] : ci) - ci), 6);
+            var delay = isClicked ? 0 : 40 + dist * 20;
+            var anim;
+            if (isClicked) {
+              el.style.position = "relative";
+              el.style.zIndex = "6";
+              anim = el.animate(
+                [
+                  {
+                    width: p.width + "px",
+                    height: p.height + "px",
+                    transform: "translate(" + dx + "px, " + dy + "px)",
+                  },
+                  {
+                    width: n.width + "px",
+                    height: n.height + "px",
+                    transform: "none",
+                  },
+                ],
+                {
+                  duration: 420,
+                  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+                },
+              );
+              if (anim)
+                anim.onfinish = function () {
+                  el.style.position = "";
+                  el.style.zIndex = "";
+                };
+            } else {
+              anim = el.animate(
+                [
+                  {
+                    transform:
+                      "translate(" +
+                      dx +
+                      "px, " +
+                      dy +
+                      "px) scale(" +
+                      sx +
+                      ", " +
+                      sy +
+                      ")",
+                  },
+                  {
+                    transform: "none",
+                  },
+                ],
+                {
+                  duration: 420,
+                  delay: delay,
+                  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+                  fill: "backwards",
+                },
+              );
+            }
+          });
+        }
+
+        function toggleGroup(gkey) {
+          if (!gkey) return;
+          var prev = captureRects();
+          state.expanded = state.expanded === gkey ? null : gkey;
+          renderGrid();
+          flip(prev, gkey);
+        }
+
+        document.addEventListener("click", function (e) {
+          var act = e.target.closest("[data-action]");
+          if (!act) return;
+          var a = act.dataset.action;
+          if (a === "theme") {
+            state.theme = act.dataset.value;
+            writeTheme(state.theme);
+            document.documentElement.setAttribute("data-theme", state.theme);
+            renderHeader(compute());
+          } else if (a === "tab") {
+            state.tab = act.dataset.id;
+            state.expanded = null;
+            renderAll();
+          } else if (a === "toggle-group") {
+            toggleGroup(act.dataset.gkey);
+          }
+        });
+
+        state.theme = readTheme() || "light";
+        document.documentElement.setAttribute("data-theme", state.theme);
+
+        if (window.DASHBOARD_DATA) {
+          state.data = window.DASHBOARD_DATA;
+          renderAll();
+        } else {
+          document.getElementById("grid").innerHTML =
+            '<p class="load-error">讀不到資料：請確認 data.js 和 index.html 在同一個資料夾，且 data.js 沒有語法錯誤（逗號、引號、括號）。</p>';
+        }
+      })();
+    </script>
+  </body>
+</html>
